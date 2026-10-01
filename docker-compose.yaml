@@ -1,0 +1,43 @@
+name: dotnet-angular-app
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: "mssql-server"
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: $MSSQL_SA_PASSWORD
+      MSSQL_PID: Developer 
+    ports:
+      - 3306:3306
+    # volumes:
+    #   - ./Mssql/Data:/var/opt/mssql/data
+
+  api:
+    depends_on: 
+      - mssql   
+    container_name: "Dotnet-Api"
+    build:
+      context: ./Api
+      dockerfile: Dockerfile
+      args:
+        API_NAME: $API_NAME
+        GIT_USER: $GIT_USER
+        GIT_EMAIL: $GIT_EMAIL
+    ports:
+      - 5000:5000
+    
+  angular:
+    depends_on: 
+      - api
+    container_name: "Angular-App"
+    build:
+      context: ./Angular
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: $APP_NAME
+        GIT_USER: $GIT_USER
+        GIT_EMAIL: $GIT_EMAIL
+    ports:
+      - 4200:4200
+
+  
